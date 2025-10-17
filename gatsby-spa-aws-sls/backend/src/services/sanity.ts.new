@@ -1,0 +1,142 @@
+import { createClient } from "@sanity/client";
+import { getParameter } from "./system-manager";
+import { Club, CreateClubInput, UpdateClubInput } from "../types/club";
+import { validateDomain } from "../utils/domain";
+import { generateClubSlug } from "../utils/slugUtils";
+
+const getSanityClient = async (domain: string) => {
+  // Validate domain before using it in SSM path
+  const validDomain = validateDomain(domain);
+
+  // Use domain-specific SSM path
+  const ssmPath =
+    process.env.SSM_SANITY_TOKEN_PATH?.replace("{{domain}}", validDomain) || "";
+  const token = await getParameter(ssmPath);
+
+  if (!process.env.SANITY_PROJECT_ID || !process.env.SANITY_DATASET) {
+    throw new Error("Sanity configuration is missing");
+  }
+
+  return createClient({
+    projectId: process.env.SANITY_PROJECT_ID,
+    dataset: process.env.SANITY_DATASET,
+    token,
+    useCdn: false,
+    apiVersion: "2021-03-25",
+  });
+};
+
+/**
+ * Get the Sanity document type for a domain
+ */
+function getSanityDocumentType(domain: string): string {
+  return `club_${validateDomain(domain)}`;
+}
+
+/**
+ * Create a new club in Sanity with auto-generated slug
+ */
+export const createClub = async (
+  input: CreateClubInput,
+  domain: string
+): Promise<Club> => {
+  const client = await getSanityClient(domain);
+  
+  // Generate the Sanity-compatible slug
+  const slug = generateClubSlug(input.clubName, input.city, domain);
+
+  const doc = {
+    _type: getSanityDocumentType(domain),
+    ...input,
+    slug, // Add the generated slug object
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  return client.create(doc);
+};
+
+/**
+ * Get a club by ID
+ */
+export const getClub = async (
+  id: string,
+  domain: string
+): Promise<Club | null> => {
+  const client = await getSanityClient(domain);
+  const documentType = getSanityDocumentType(domain);
+  return client.fetch(`*[_type == $type && _id == $id][0]`, {
+    type: documentType,
+    id,
+  });
+};
+
+/**
+ * Update a club's details
+ */
+export const updateClub = async (
+  id: string,
+  input: UpdateClubInput,
+  domain: string
+): Promise<Club | null> => {
+  const client = await getSanityClient(domain);
+  
+  // If club name or city is being updated, we need to update the slug too
+  const needsSlugUpdate = input.clubName !== undefined || input.city !== undefined;
+  
+  if (needsSlugUpdate) {
+    // Fetch current club data to have complete info for slug generation
+    const currentClub = await getClub(id, domain);
+    if (!currentClub) {
+      throw new Error(`Club not found with ID: ${id}`);
+    }
+    
+    // Generate new slug using updated or existing values
+    const slug = generateClubSlug(
+      input.clubName || currentClub.clubName,
+      input.city || currentClub.city,
+      domain
+    );
+    
+    // Add slug to the update
+    const doc = {
+      ...input,
+      slug,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return client.patch(id).set(doc).commit();
+  }
+  
+  // If no slug update needed, proceed with normal update
+  const doc = {
+    ...input,
+    updatedAt: new Date().toISOString(),
+  };
+  
+  return client.patch(id).set(doc).commit();
+};
+
+/**
+ * Validates that a club belongs to the specified domain
+ * @throws Error if club doesn't exist or belongs to a different domain
+ */
+export const validateClubDomain = async (
+  id: string,
+  domain: string
+): Promise<void> => {
+  const client = await getSanityClient(domain);
+  const documentType = getSanityDocumentType(domain);
+  const result = await client.fetch(
+    `*[_type == $type && _id == $id][0]._type`,
+    { type: documentType, id }
+  );
+
+  if (!result) {
+    throw new Error(`Club not found with ID: ${id}`);
+  }
+
+  if (result !== documentType) {
+    throw new Error(`Club does not belong to domain: ${domain}`);
+  }
+};
