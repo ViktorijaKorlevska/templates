@@ -4,12 +4,15 @@ import translation from './documents/translations'
 
 // OBJECTS
 import socialMedia from './objects/socialMedia'
+import legalPage from './objects/legalPage'
 
 // TYPES
-import blockContent from './types/blockContent'
+import portableText from './types/portableText'
 import customImage from './types/customImage'
 import customQuote from './types/customQuote'
 import previewLink from './types/previewLink'
+import youtube from './types/youtube'
+import codeBlock from './types/codeBlock'
 
 export const schemaTypes = [
   // DOCUMENTS
@@ -17,9 +20,12 @@ export const schemaTypes = [
   translation,
   // OBJECTS
   socialMedia,
+  legalPage,
   // TYPES
-  blockContent,
+  portableText,
   customImage,
   customQuote,
   previewLink,
+  youtube,
+  codeBlock,
 ]
