@@ -9,6 +9,7 @@ import socialMedia from './objects/socialMedia'
 import blockContent from './types/blockContent'
 import customImage from './types/customImage'
 import customQuote from './types/customQuote'
+import previewLink from './types/previewLink'
 
 export const schemaTypes = [
   // DOCUMENTS
@@ -20,4 +21,5 @@ export const schemaTypes = [
   blockContent,
   customImage,
   customQuote,
+  previewLink,
 ]
