@@ -26,23 +26,8 @@ export default defineType({
     defineField({
       name: 'seo',
       title: 'SEO Settings',
-      type: 'object',
+      type: 'seo',
       options: {collapsible: true, collapsed: true},
-      fields: [
-        defineField({
-          name: 'title',
-          title: 'SEO Title',
-          type: 'string',
-          description: 'Override the default page title for SEO',
-        }),
-        defineField({
-          name: 'description',
-          title: 'Meta Description',
-          type: 'text',
-          rows: 3,
-          validation: (Rule) => Rule.max(160),
-        }),
-      ],
     }),
   ],
   preview: {

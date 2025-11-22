@@ -16,6 +16,11 @@ export default defineType({
       options: {collapsible: true, collapsed: false},
     },
     {
+      name: 'contact',
+      title: 'Contact Information',
+      options: {collapsible: true, collapsed: false},
+    },
+    {
       name: 'seo',
       title: 'SEO & Meta Settings',
       options: {collapsible: true, collapsed: true},
@@ -46,7 +51,7 @@ export default defineType({
       title: 'Domain URL',
       type: 'string',
       fieldset: 'domain',
-      validation: (Rule) => Rule.required().uri({allowRelative: false}),
+      validation: (Rule) => Rule.required(),
     }),
     // Languages
     defineField({
@@ -92,32 +97,21 @@ export default defineType({
       ],
       validation: (Rule) => Rule.unique(),
     }),
+
+    // Contact Information
+    defineField({
+      name: 'contactInfo',
+      title: 'Contact Information',
+      type: 'contactInfo',
+      fieldset: 'contact',
+    }),
+
     // SEO Settings
     defineField({
       name: 'seo',
       title: 'SEO Settings',
-      type: 'object',
+      type: 'seo',
       fieldset: 'seo',
-      fields: [
-        defineField({name: 'title', type: 'string', title: 'Title'}),
-        defineField({name: 'description', type: 'text', title: 'Meta Description'}),
-        defineField({
-          name: 'image',
-          type: 'image',
-          title: 'SEO Image',
-          options: {hotspot: true},
-          fields: [
-            {name: 'alt', type: 'string', title: 'Alt Text', validation: (Rule) => Rule.required()},
-          ],
-        }),
-        defineField({
-          name: 'tags',
-          type: 'array',
-          title: 'SEO Tags',
-          of: [{type: 'string'}],
-          options: {layout: 'tags'},
-        }),
-      ],
     }),
     // Social Media
     defineField({

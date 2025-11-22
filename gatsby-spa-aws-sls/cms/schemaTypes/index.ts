@@ -5,6 +5,11 @@ import translation from './documents/translations'
 // OBJECTS
 import socialMedia from './objects/socialMedia'
 import legalPage from './objects/legalPage'
+import seo from './objects/seo'
+import translationSet from './objects/translationSet'
+import contactInfo from './objects/contactInfo'
+import locationAddress from './objects/locationAddress'
+import phoneNumber from './objects/phoneNumber'
 
 // TYPES
 import portableText from './types/portableText'
@@ -21,6 +26,11 @@ export const schemaTypes = [
   // OBJECTS
   socialMedia,
   legalPage,
+  seo,
+  translationSet,
+  contactInfo,
+  locationAddress,
+  phoneNumber,
   // TYPES
   portableText,
   customImage,

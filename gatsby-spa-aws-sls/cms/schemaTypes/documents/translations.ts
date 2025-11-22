@@ -62,16 +62,8 @@ export default defineType({
     defineField({
       name: 'translations',
       title: 'Translations',
-      type: 'object',
+      type: 'translationSet',
       description: 'Translations for each supported language',
-      fields: supportedLanguages.map((lang) =>
-        defineField({
-          name: lang.value,
-          title: lang.title,
-          type: 'text',
-          rows: 3,
-        }),
-      ),
       validation: (Rule) => Rule.required().error('At least one translation is required'),
     }),
     defineField({
